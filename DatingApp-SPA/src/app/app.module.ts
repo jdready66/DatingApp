@@ -1,10 +1,15 @@
-import { BrowserModule, HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
+import {
+  BrowserModule,
+  HammerGestureConfig,
+  HAMMER_GESTURE_CONFIG,
+} from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import {HttpClientModule} from '@angular/common/http';
-import {FormsModule} from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { JwtModule } from '@auth0/angular-jwt';
 import { NgxGalleryModule } from 'ngx-gallery';
@@ -32,61 +37,61 @@ import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
 
 export function tokenGetter() {
-   return localStorage.getItem('token');
+  return localStorage.getItem('token');
 }
 
-export class CustomHammerConfig extends HammerGestureConfig  {
-   overrides = {
-       pinch: { enable: false },
-       rotate: { enable: false }
-   };
+export class CustomHammerConfig extends HammerGestureConfig {
+  overrides = {
+    pinch: { enable: false },
+    rotate: { enable: false },
+  };
 }
 
 @NgModule({
-   declarations: [
-      AppComponent,
-      NavComponent,
-      HomeComponent,
-      RegisterComponent,
-      MemberListComponent,
-      ListsComponent,
-      MessagesComponent,
-      MemberCardComponent,
-      MemberDetailComponent,
-      MemberEditComponent,
-      PhotoEditorComponent
-   ],
-   imports: [
-      BrowserModule,
-      HttpClientModule,
-      FormsModule,
-      BrowserAnimationsModule,
-      BsDropdownModule.forRoot(),
-      TabsModule.forRoot(),
-      RouterModule.forRoot(appRoutes),
-      NgxGalleryModule,
-      FileUploadModule,
-      JwtModule.forRoot( {
-         config: {
-            tokenGetter: tokenGetter,
-            whitelistedDomains: ['localhost:5000'],
-            blacklistedRoutes: ['localhost:5000/api/auth']
-         }
-      })
-   ],
-   providers: [
-      AuthService,
-      ErrorInterceptorProvider,
-      AlertifyService,
-      AuthGuard,
-      PreventUnsavedChanges,
-      MemberDetailResolver,
-      MemberListResolver,
-      MemberEditResolver,
-      { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }
-   ],
-   bootstrap: [
-      AppComponent
-   ]
+  declarations: [
+    AppComponent,
+    NavComponent,
+    HomeComponent,
+    RegisterComponent,
+    MemberListComponent,
+    ListsComponent,
+    MessagesComponent,
+    MemberCardComponent,
+    MemberDetailComponent,
+    MemberEditComponent,
+    PhotoEditorComponent,
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
+    BsDropdownModule.forRoot(),
+    BsDatepickerModule.forRoot(),
+    TabsModule.forRoot(),
+    RouterModule.forRoot(appRoutes),
+    NgxGalleryModule,
+    FileUploadModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: tokenGetter,
+        whitelistedDomains: ['localhost:5000'],
+        blacklistedRoutes: ['localhost:5000/api/auth'],
+      },
+    }),
+  ],
+  providers: [
+    AuthService,
+    ErrorInterceptorProvider,
+    AlertifyService,
+    AuthGuard,
+    PreventUnsavedChanges,
+    MemberDetailResolver,
+    MemberListResolver,
+    MemberEditResolver,
+    { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig },
+  ],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
