@@ -3,7 +3,7 @@ import { User } from 'src/app/_models/user';
 import { ActivatedRoute } from '@angular/router';
 import { AlertifyService } from 'src/app/_services/alertify.service';
 import { NgForm } from '@angular/forms';
-import { UserService } from 'src/app/_services/User.service';
+import { UserService } from 'src/app/_services/user.service';
 import { AuthService } from 'src/app/_services/auth.service';
 
 @Component({
