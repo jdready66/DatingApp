@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatingApp.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200515210647_MySqlInitial")]
+    [Migration("20200517160226_MySqlInitial")]
     partial class MySqlInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
