@@ -19,7 +19,7 @@ namespace DatingApp.API.Controllers
             _context = context;
         }
         // GET api/values
-        [AllowAnonymous]
+        [Authorize(Roles="Admin")]
         [HttpGet]
         public IActionResult GetValues()
         {
@@ -28,7 +28,7 @@ namespace DatingApp.API.Controllers
         }
 
         // GET api/values/5
-        [AllowAnonymous]
+        [Authorize(Roles = "Member")]
         [HttpGet("{id}")]
         public IActionResult GetValue(int id)
         {
