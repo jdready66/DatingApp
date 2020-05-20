@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Models;
@@ -16,8 +17,12 @@ namespace DatingApp.API.Controllers
     {
         private readonly DataContext _context;
         private readonly UserManager<User> _userManager;
-        public AdminController(DataContext context, UserManager<User> userManager)
+        private readonly IMapper _mapper;
+        private readonly IDatingRepository _repo;
+        public AdminController(DataContext context, UserManager<User> userManager, IMapper mapper, IDatingRepository repo)
         {
+            _repo = repo;
+            _mapper = mapper;
             _userManager = userManager;
             _context = context;
         }
@@ -50,10 +55,10 @@ namespace DatingApp.API.Controllers
             var userRoles = await _userManager.GetRolesAsync(user);
 
             var selectedRoles = roleEditDto.RoleNames;
-            selectedRoles = selectedRoles ?? new string[] {};
+            selectedRoles = selectedRoles ?? new string[] { };
 
             var result = await _userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
-            
+
             if (!result.Succeeded)
                 return BadRequest("Failed to add to roles");
 
@@ -67,9 +72,55 @@ namespace DatingApp.API.Controllers
 
         [Authorize(Policy = "ModeratePhotoRole")]
         [HttpGet("photosForModeration")]
-        public IActionResult GetPhotosForModeration()
+        public async Task<IActionResult> GetPhotosForModeration()
         {
-            return Ok("Admins or Moderators can see this");
+            var photos = await _context.Photos
+            .IgnoreQueryFilters()
+                .Where(p => p.isApproved == false)
+                .OrderBy(p => p.UserId)
+                .Select(p => new
+                {
+                    Id = p.Id,
+                    Url = p.Url,
+                    UserId = p.UserId,
+                    UserName = p.User.UserName
+                })
+                .ToListAsync();
+
+            if (photos.Count == 0)
+                return NoContent();
+
+            return Ok(photos);
+        }
+
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpPost("approvePhoto/{id}")]
+        public async Task<IActionResult> ApprovePhoto(int id)
+        {
+            var photo = await _repo.GetPhoto(id);
+
+            if (photo.isApproved)
+                return BadRequest("Photo has already been approved");
+
+            photo.isApproved = true;
+
+            if (await _repo.SaveAll())
+                return NoContent();
+            
+            return BadRequest("Error approving photo");
+        }
+
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpDelete("rejectPhoto/{id}")]
+        public async Task<IActionResult> rejectPhoto(int id) {
+            var photo = await _repo.GetPhoto(id);
+
+            _repo.Delete(photo);
+
+            if (await _repo.SaveAll()) 
+                return NoContent();
+            
+            return BadRequest("Error rejecting photo");
         }
     }
 }

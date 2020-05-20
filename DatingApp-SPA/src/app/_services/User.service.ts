@@ -51,8 +51,12 @@ export class UserService {
       );
   }
 
-  getUser(id: number): Observable<User> {
-    return this.http.get<User>(this.baseUrl + "users/" + id);
+  getUser(id: number, allPhotos = false): Observable<User> {
+    let params = new HttpParams();
+    if (allPhotos) {
+      params = params.append('allPhotos', 'true');
+    }
+    return this.http.get<User>(this.baseUrl + "users/" + id, {params});
   }
 
   updateUser(id: number, user: User) {

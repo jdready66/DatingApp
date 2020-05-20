@@ -11,3 +11,20 @@ img.img-thumbnail {
 input[type=file] {
     color: transparent;
 }
+
+.not-approved {
+    opacity: 0.5;
+}
+.not-approved-text {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: red;
+}
+.img-wrapper {
+    border: 1px solid black;
+    position: relative;
+    display: inline-block;
+}
