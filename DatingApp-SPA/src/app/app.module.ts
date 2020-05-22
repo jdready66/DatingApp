@@ -98,11 +98,11 @@ export class CustomHammerConfig extends HammerGestureConfig {
     FileUploadModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter: tokenGetter,
+        tokenGetter,
         whitelistedDomains: ['localhost:5000'],
-        blacklistedRoutes: ['localhost:5000/api/auth'],
-      },
-    }),
+        blacklistedRoutes: ['localhost:5000/api/auth']
+      }
+    })
   ],
   providers: [
     AuthService,
@@ -116,11 +116,11 @@ export class CustomHammerConfig extends HammerGestureConfig {
     MemberEditResolver,
     ListsResolver,
     MessagesResolver,
-    { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig },
+    { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }
   ],
   entryComponents: [
     RolesModalComponent
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}
