@@ -46,8 +46,9 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpGet("{id}", Name = "GetUser")]
-        public async Task<IActionResult> GetUser(int id, [FromQuery]bool allPhotos)
+        public async Task<IActionResult> GetUser(int id)
         {
+            var allPhotos = (id == int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value));
             var user = await _repo.GetUser(id, allPhotos);
 
             var userToReturn = _mapper.Map<UserForDetailDto>(user);

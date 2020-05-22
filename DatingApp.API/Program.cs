@@ -1,6 +1,7 @@
 using System;
 using DatingApp.API.Data;
 using DatingApp.API.Models;
+using DatingApp.API.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,9 @@ namespace DatingApp.API
                     var roleManager = services.GetRequiredService<RoleManager<Role>>();
                     context.Database.Migrate();
                     Seed.SeedUsers(userManager, roleManager);
+                    
+                    var emailMsgBuilder = services.GetRequiredService<IEmailMsgBuilder>();
+                    // TestEmail.RunAsync(emailMsgBuilder).Wait();
                 }
                 catch (Exception ex)
                 {

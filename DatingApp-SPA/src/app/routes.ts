@@ -16,6 +16,7 @@ import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 
 export const appRoutes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'confirmEmail', component: HomeComponent },
   {
     path: '',
     runGuardsAndResolvers: 'always',

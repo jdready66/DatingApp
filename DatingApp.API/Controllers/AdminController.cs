@@ -4,6 +4,7 @@ using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Models;
+using DatingApp.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +20,14 @@ namespace DatingApp.API.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
         private readonly IDatingRepository _repo;
-        public AdminController(DataContext context, UserManager<User> userManager, IMapper mapper, IDatingRepository repo)
+        private readonly IPhotoService _photoService;
+        public AdminController(DataContext context,
+            UserManager<User> userManager,
+            IMapper mapper,
+            IDatingRepository repo,
+            IPhotoService photoService)
         {
+            _photoService = photoService;
             _repo = repo;
             _mapper = mapper;
             _userManager = userManager;
@@ -106,21 +113,15 @@ namespace DatingApp.API.Controllers
 
             if (await _repo.SaveAll())
                 return NoContent();
-            
+
             return BadRequest("Error approving photo");
         }
 
         [Authorize(Policy = "ModeratePhotoRole")]
         [HttpDelete("rejectPhoto/{id}")]
-        public async Task<IActionResult> rejectPhoto(int id) {
-            var photo = await _repo.GetPhoto(id);
-
-            _repo.Delete(photo);
-
-            if (await _repo.SaveAll()) 
-                return NoContent();
-            
-            return BadRequest("Error rejecting photo");
+        public async Task<IActionResult> rejectPhoto(int id)
+        {
+            return _photoService.WebResponse(await _photoService.DeletePhoto(id));
         }
     }
 }

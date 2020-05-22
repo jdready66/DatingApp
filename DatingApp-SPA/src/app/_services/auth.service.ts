@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { User } from '../_models/user';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -39,7 +40,10 @@ export class AuthService {
   }
 
   register(user: User) {
-    return this.http.post(this.baseUrl + 'register', user);
+    let params = new HttpParams();
+    params = params.append('baseClientUrl', encodeURI(window.location.origin));
+
+    return this.http.post(this.baseUrl + 'register', user, {params: params});
   }
 
   loggedIn() {

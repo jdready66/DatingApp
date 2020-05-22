@@ -2,13 +2,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Helpers;
 using DatingApp.API.Models;
-using Microsoft.AspNetCore.Authorization;
+using DatingApp.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -20,22 +18,14 @@ namespace DatingApp.API.Controllers
     {
         private readonly IDatingRepository _repo;
         private readonly IMapper _mapper;
-        private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
-        private Cloudinary _cloudinary;
+        private readonly IPhotoService _photoService;
 
-        public PhotosController(IDatingRepository repo, IMapper mapper, IOptions<CloudinarySettings> cloudinaryConfig)
+        public PhotosController(
+            IDatingRepository repo, IMapper mapper, IPhotoService photoService)
         {
+            _photoService = photoService;
             _repo = repo;
             _mapper = mapper;
-            _cloudinaryConfig = cloudinaryConfig;
-
-            Account acc = new Account(
-                _cloudinaryConfig.Value.CloudName,
-                _cloudinaryConfig.Value.ApiKey,
-                _cloudinaryConfig.Value.ApiSecret
-            );
-
-            _cloudinary = new Cloudinary(acc);
         }
 
         [HttpGet("{id}", Name = "GetPhoto")]
@@ -53,24 +43,7 @@ namespace DatingApp.API.Controllers
 
             var userFromRepo = await _repo.GetUser(userId);
 
-            var file = photoForCreationDto.File;
-
-            var uploadResult = new ImageUploadResult();
-
-            if (file.Length > 0)
-            {
-                using (var stream = file.OpenReadStream())
-                {
-                    var uploadParams = new ImageUploadParams()
-                    {
-                        File = new FileDescription(file.Name, stream),
-                        Transformation = new Transformation()
-                            .Width(500).Height(500).Crop("fill").Gravity("face")
-                    };
-
-                    uploadResult = _cloudinary.Upload(uploadParams);
-                }
-            }
+            var uploadResult = _photoService.UploadPhoto(photoForCreationDto);
 
             photoForCreationDto.Url = uploadResult.Uri.ToString();
             photoForCreationDto.PublicId = uploadResult.PublicId;
@@ -127,33 +100,12 @@ namespace DatingApp.API.Controllers
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
 
-            var userFromRepo = await _repo.GetUser(userId);
+            var userFromRepo = await _repo.GetUser(userId, true);
 
             if (!userFromRepo.Photos.Any(p => p.Id == id))
                 return Unauthorized();
 
-            var photoFromRepo = await _repo.GetPhoto(id);
-
-            if (photoFromRepo.IsMain)
-                return BadRequest("You cannot delete your main photo");
-
-
-            if (photoFromRepo.PublicId != null)
-            {
-                var deleteParams = new DeletionParams(photoFromRepo.PublicId);
-                var result = _cloudinary.Destroy(deleteParams);
-
-                if (result.Result == "ok")
-                    _repo.Delete(photoFromRepo);
-            }
-            else {
-                _repo.Delete(photoFromRepo);
-            }
-
-            if (await _repo.SaveAll())
-                return Ok();
-
-            return BadRequest("Failed to delete the photo");
+            return _photoService.WebResponse(await _photoService.DeletePhoto(id));
         }
     }
 

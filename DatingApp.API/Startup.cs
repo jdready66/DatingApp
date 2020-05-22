@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using DatingApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using DatingApp.API.Services;
 
 namespace DatingApp.API
 {
@@ -61,6 +62,7 @@ namespace DatingApp.API
 
             builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
             builder.AddEntityFrameworkStores<DataContext>();
+            builder.AddDefaultTokenProviders();
             builder.AddRoleValidator<RoleValidator<Role>>();
             builder.AddRoleManager<RoleManager<Role>>();
             builder.AddSignInManager<SignInManager<User>>();
@@ -100,6 +102,8 @@ namespace DatingApp.API
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
             services.AddAutoMapper(typeof(DatingRepository).Assembly);
             services.AddScoped<IDatingRepository, DatingRepository>();
+            services.AddScoped<IPhotoService, PhotoService>();
+            services.AddScoped<IEmailMsgBuilder, EmailMsgBuilder>();
             services.AddScoped<LogUserActivity>();
         }
 

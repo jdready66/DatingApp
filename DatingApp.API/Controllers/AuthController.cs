@@ -1,3 +1,4 @@
+using System.Net;
 using System;
 using System.Text;
 using System.Security.Claims;
@@ -13,6 +14,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using DatingApp.API.Services;
 
 namespace DatingApp.API.Controllers
 {
@@ -25,9 +27,12 @@ namespace DatingApp.API.Controllers
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IEmailMsgBuilder _emailMsgBuilder;
 
-        public AuthController(IConfiguration config, IMapper mapper, UserManager<User> userManager, SignInManager<User> signInManager)
+        public AuthController(IConfiguration config, IMapper mapper, UserManager<User> userManager,
+                              SignInManager<User> signInManager, IEmailMsgBuilder emailMsgBuilder)
         {
+            _emailMsgBuilder = emailMsgBuilder;
             _signInManager = signInManager;
             _userManager = userManager;
             _config = config;
@@ -36,11 +41,34 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
+        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto, [FromQuery]string baseClientUrl)
         {
             var userToCreate = _mapper.Map<User>(userForRegisterDto);
 
             var result = await _userManager.CreateAsync(userToCreate, userForRegisterDto.Password);
+
+            var confirmationToken = _userManager.GenerateEmailConfirmationTokenAsync(userToCreate).Result;
+            var confirmationLink = Url.Action("ConfirmEmail",
+              "Auth", new
+              {
+                  userid = userToCreate.Id,
+                  token = confirmationToken
+              },
+               protocol: Request.Scheme);
+
+            var html = string.Format(@"
+            Thank you for registering with the site.  Your access to the site will be limited until you verify your 
+            eamil address by clicking the link below.<br><br> 
+            <a href=""{0}/confirmEmail?address={1}"">Click Here to Verify Your Email Address</a>",
+                baseClientUrl, WebUtility.UrlEncode(confirmationLink));
+
+            var msg = _emailMsgBuilder
+                .AddFrom("JD", "jdready@comcast.net")
+                .AddTo("JD", "jdready@comcast.net")
+                .AddSubject("Confirm your email")
+                .AddTextPart(confirmationLink)
+                .AddHtmlPart(html);
+            var rsp = await msg.SendMsg();
 
             var userToReturn = _mapper.Map<UserForDetailDto>(userToCreate);
 
@@ -102,6 +130,18 @@ namespace DatingApp.API.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        [HttpGet]
+        public IActionResult ConfirmEmail(string userId, string token) {
+
+            var user = _userManager.FindByIdAsync(userId).Result;
+            var result = _userManager.ConfirmEmailAsync(user, token).Result;
+
+            if (result.Succeeded)
+                return Ok();
+
+            return BadRequest("Problem Confirming Email");
         }
     }
 }
