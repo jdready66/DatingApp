@@ -48,6 +48,10 @@ import { UserManagementComponent } from './admin/user-management/user-management
 import { PhotoManagementComponent } from './admin/photo-management/photo-management.component';
 import { AdminService } from './_services/admin.service';
 import { RolesModalComponent } from './admin/roles-modal/roles-modal.component';
+import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
+import { YesNoValidatorDirective } from './_directives/yesNoValidator.directive';
+import { UsernameExistsValidatorDirective } from './_directives/usernameExistsValidator.directive';
+
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -79,7 +83,10 @@ export class CustomHammerConfig extends HammerGestureConfig {
     HasRoleDirective,
     UserManagementComponent,
     PhotoManagementComponent,
-    RolesModalComponent
+    RolesModalComponent,
+    ConfirmEmailComponent,
+    YesNoValidatorDirective,
+    UsernameExistsValidatorDirective
   ],
   imports: [
     BrowserModule,

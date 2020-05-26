@@ -13,10 +13,11 @@ import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 import { ListsResolver } from './_resolvers/lists.resolver';
 import { MessagesResolver } from './_resolvers/messages.resolver';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
+import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
 
 export const appRoutes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'confirmEmail', component: HomeComponent },
+  { path: 'confirmEmail/:link', component: ConfirmEmailComponent },
   {
     path: '',
     runGuardsAndResolvers: 'always',
@@ -25,35 +26,35 @@ export const appRoutes: Routes = [
       {
         path: 'members',
         component: MemberListComponent,
-        resolve: { users: MemberListResolver },
+        resolve: { users: MemberListResolver }
       },
       {
         path: 'members/:id',
         component: MemberDetailComponent,
-        resolve: { user: MemberDetailResolver },
+        resolve: { user: MemberDetailResolver }
       },
       {
         path: 'member/edit',
         component: MemberEditComponent,
         resolve: { user: MemberEditResolver },
-        canDeactivate: [PreventUnsavedChanges],
+        canDeactivate: [PreventUnsavedChanges]
       },
       {
         path: 'messages',
         component: MessagesComponent,
-        resolve: { messages: MessagesResolver },
+        resolve: { messages: MessagesResolver }
       },
       {
         path: 'lists',
         component: ListsComponent,
-        resolve: { users: ListsResolver },
+        resolve: { users: ListsResolver }
       },
       {
         path: 'admin',
         component: AdminPanelComponent,
-        data: {roles: ['Admin', 'Moderator']}
-      },
-    ],
+        data: { roles: ['Admin', 'Moderator'] }
+      }
+    ]
   },
-  { path: '**', redirectTo: '', pathMatch: 'full' },
+  { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

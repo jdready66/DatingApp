@@ -121,7 +121,7 @@ namespace DatingApp.API.Services
                 {
                     msgJson.Append(",");
                 }
-                msgJson.AppendFormat(@"{{'Email': '{0}', 'Name': '{1}'}}", _from.Email, _from.Name);
+                msgJson.AppendFormat(@"{{'Email': '{0}', 'Name': '{1}'}}", to.Email, to.Name);
             }
             msgJson.Append("],");
 

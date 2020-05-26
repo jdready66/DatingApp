@@ -1,0 +1,40 @@
+<div class="container mt-5">
+    <div style="text-align: center">
+        <div *ngIf="emailConfirmed=='confirming'">
+            <h1 class="text-muted">Confirming email...</h1>
+        </div>
+        <div *ngIf="emailConfirmed=='confirmed'">
+            <h1 class='text-success'>Email Confirmed!</h1>
+            <p>Thank you for joining! You may now login and use the system.</p>
+            <p>
+                If you are logged in with another window open for this website, you can close this window and hit
+                the 'Refresh' button in that browser to continue using the site.
+            </p>
+        </div>
+        <div *ngIf="emailConfirmed=='already'">
+            <h1 class='text-warning'>Already Confirmed</h1>
+            <p>Your email was already confirmed.</p>
+        </div>
+        <div *ngIf="emailConfirmed=='failed'">
+            <h1 class='text-danger'>Confirmation Unsuccessful</h1>
+            <p>Something went wrong with your email confirmation process.  We're sorry for 
+                the inconvenience.  Please try again later.
+            </p>
+        </div>
+        <div *ngIf="emailConfirmed=='unconfirmed'">
+            <h1 class='text-danger'>Email Confirmation Needed</h1>
+            <p>
+                You have successfully registered with the system.  However, we need to confirm your email<br>
+                address before allowing full access to the system.  You should have received a request<br>
+                for confirmation in your email at<br>
+                <span class="text-info"><strong>{{user ? user.email : 'N/A'}}</strong></span><br>
+                Please check your SPAM/JUNK folder also.
+            </p>
+            <p>
+                Once your email is confirmed, you will have access to the website.<br>
+                If you cannot find the email confirmation, 
+                <a [routerLink]= "" (click)="generateNewConfirmation()">click here</a> to generate a new confirmation.
+            </p>
+        </div>
+    </div>
+</div>

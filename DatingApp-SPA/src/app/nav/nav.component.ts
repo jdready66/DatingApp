@@ -26,7 +26,11 @@ export class NavComponent implements OnInit {
     }, error => {
       this.alertify.error(error);
     }, () => {
-      this.router.navigate(['/members']);
+      if (this.authService.currentUser.emailConfirmed) {
+        this.router.navigate(['/members']);
+      } else {
+        this.router.navigate(['/confirmEmail/unconfirmed']);
+      }
     });
   }
 

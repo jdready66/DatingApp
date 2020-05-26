@@ -15,7 +15,14 @@
     <input type="text" [ngClass]="{'is-invalid': registerForm.get('username').errors
         && registerForm.get('username').touched}" class="form-control is-invalid" formControlName="username"
       placeholder="Username">
-    <div class="invalid-feedback">Please choose a username</div>
+    <div class="invalid-feedback"
+      *ngIf="registerForm.get('username').touched && registerForm.get('username').hasError('required')">
+      Please choose a username
+    </div>
+    <div class="invalid-feedback"
+      *ngIf="registerForm.get('username').touched && registerForm.get('username').hasError('usernameExistsValidator')">
+      Username exists - choose another
+    </div>
   </div>
 
   <div class="form-group">
@@ -27,8 +34,26 @@
   </div>
 
   <div class="form-group">
+    <input [ngClass]="{'is-invalid': registerForm.get('email').errors && registerForm.get('email').touched}"
+      class="form-control" placeholder="Email" formControlName="email">
+    <div class="invalid-feedback"
+      *ngIf="registerForm.get('email').touched && registerForm.get('email').hasError('required')">
+      Email is required
+    </div>
+    <div class="invalid-feedback"
+      *ngIf="registerForm.get('email').touched && registerForm.get('email').hasError('email')">
+      Email must be valid
+    </div>
+    <div class="invalid-feedback"
+      *ngIf="registerForm.get('email').touched && registerForm.get('email').hasError('emailExistsValidator')">
+      Email exists - two accounts cannot use the same email
+    </div>
+  </div>
+
+  <div class="form-group">
     <input [ngClass]="{'is-invalid': registerForm.get('dateOfBirth').errors && registerForm.get('dateOfBirth').touched}"
-      class="form-control" placeholder="Date of Birth" formControlName="dateOfBirth" type="text" bsDatepicker [bsConfig]="bsConfig">
+      class="form-control" placeholder="Date of Birth" formControlName="dateOfBirth" type="text" bsDatepicker
+      [bsConfig]="bsConfig">
     <div class="invalid-feedback"
       *ngIf="registerForm.get('dateOfBirth').touched && registerForm.get('dateOfBirth').hasError('required')">Date of
       Birth is required</div>
@@ -89,5 +114,5 @@
 
 </form>
 
-<p>Form Value: {{registerForm.value | json}}</p>
-<p>Form Status: {{registerForm.status | json}}</p>
+<!-- <p>Form Value: {{registerForm.value | json}}</p>
+<p>Form Status: {{registerForm.status | json}}</p> -->

@@ -104,6 +104,7 @@ namespace DatingApp.API
             services.AddScoped<IDatingRepository, DatingRepository>();
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IEmailMsgBuilder, EmailMsgBuilder>();
+            services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<LogUserActivity>();
         }
 

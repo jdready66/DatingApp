@@ -13,3 +13,8 @@
     background-color: #fff;
     border-top: none;
 }
+
+.form-inline, .form-inline .form-group {
+    display: inline-block;
+    vertical-align: top;
+}

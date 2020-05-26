@@ -1,9 +1,7 @@
-using System.Net;
 using System;
 using System.Text;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -27,12 +25,12 @@ namespace DatingApp.API.Controllers
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly IEmailMsgBuilder _emailMsgBuilder;
+        private readonly IEmailService _emailService;
 
         public AuthController(IConfiguration config, IMapper mapper, UserManager<User> userManager,
-                              SignInManager<User> signInManager, IEmailMsgBuilder emailMsgBuilder)
+                              SignInManager<User> signInManager, IEmailService emailService)
         {
-            _emailMsgBuilder = emailMsgBuilder;
+            _emailService = emailService;
             _signInManager = signInManager;
             _userManager = userManager;
             _config = config;
@@ -41,34 +39,19 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto, [FromQuery]string baseClientUrl)
+        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto, [FromQuery] string baseClientUrl)
         {
             var userToCreate = _mapper.Map<User>(userForRegisterDto);
 
             var result = await _userManager.CreateAsync(userToCreate, userForRegisterDto.Password);
+            if (!result.Succeeded)
+                return BadRequest("Error creating user account");
 
-            var confirmationToken = _userManager.GenerateEmailConfirmationTokenAsync(userToCreate).Result;
-            var confirmationLink = Url.Action("ConfirmEmail",
-              "Auth", new
-              {
-                  userid = userToCreate.Id,
-                  token = confirmationToken
-              },
-               protocol: Request.Scheme);
+            var user = await _userManager.FindByNameAsync(userToCreate.UserName);
 
-            var html = string.Format(@"
-            Thank you for registering with the site.  Your access to the site will be limited until you verify your 
-            eamil address by clicking the link below.<br><br> 
-            <a href=""{0}/confirmEmail?address={1}"">Click Here to Verify Your Email Address</a>",
-                baseClientUrl, WebUtility.UrlEncode(confirmationLink));
+            await _userManager.AddToRolesAsync(user, new[] { "Member" });
 
-            var msg = _emailMsgBuilder
-                .AddFrom("JD", "jdready@comcast.net")
-                .AddTo("JD", "jdready@comcast.net")
-                .AddSubject("Confirm your email")
-                .AddTextPart(confirmationLink)
-                .AddHtmlPart(html);
-            var rsp = await msg.SendMsg();
+            _emailService.SendEmailConfirmationEmail(user, baseClientUrl, Url);
 
             var userToReturn = _mapper.Map<UserForDetailDto>(userToCreate);
 
@@ -80,11 +63,14 @@ namespace DatingApp.API.Controllers
             return BadRequest(result.Errors);
         }
 
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
             //var userFromRepo = await _repo.Login(userForLoginDto.Username.ToLower(), userForLoginDto.Password);
             var user = await _userManager.FindByNameAsync(userForLoginDto.Username);
+            if (user == null)
+                return Unauthorized();
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
 
@@ -132,16 +118,46 @@ namespace DatingApp.API.Controllers
             return tokenHandler.WriteToken(token);
         }
 
-        [HttpGet]
-        public IActionResult ConfirmEmail(string userId, string token) {
+        [Authorize(Roles = "Member")]
+        [HttpGet("resendConfirmation/{id}")]
+        public async Task<IActionResult> ResendConfirmationEmail(int id, [FromQuery] string baseClientUrl)
+        {
+            if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            _emailService.SendEmailConfirmationEmail(user, baseClientUrl, Url);
+
+            return Ok();
+        }
+
+        [HttpGet("ConfirmEmail")]
+        public IActionResult ConfirmEmail(string userId, string token)
+        {
 
             var user = _userManager.FindByIdAsync(userId).Result;
+
+            if (user.EmailConfirmed)
+                return BadRequest("Email already confirmed");
+
             var result = _userManager.ConfirmEmailAsync(user, token).Result;
 
             if (result.Succeeded)
                 return Ok();
 
             return BadRequest("Problem Confirming Email");
+        }
+
+        [HttpGet("GetUserByUsername/{username}")]
+        public async Task<IActionResult> GetUserByUsername(string username) {
+            var user = await _userManager.FindByNameAsync(username);
+            return Ok(user);
+        }
+
+        [HttpGet("GetUserByEmail/{email}")]
+        public async Task<IActionResult> GetUserByEmail(string email) {
+            var user = await _userManager.FindByEmailAsync(email);
+            return Ok(user);
         }
     }
 }

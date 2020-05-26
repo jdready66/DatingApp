@@ -5,7 +5,7 @@
     </div>
     <div class="col-sm-8">
       <div *ngIf="editForm.dirty" class="alert alert-info">
-        <strong>Information:</strong> You have made changes.  Any unsaved changes will be lost!
+        <strong>Information:</strong> You have made changes. Any unsaved changes will be lost!
       </div>
     </div>
   </div>
@@ -31,35 +31,108 @@
             <p>{{user.created | date}}</p>
           </div>
           <div class="card-footer">
-            <button [disabled]="!editForm.dirty" form="editForm" class="btn btn-success btn-block">Save Changes</button>
+            <button [disabled]="!editForm.dirty || !editForm.valid" class="btn btn-success btn-block"
+              (click)="saveEditForm()">Save Changes</button>
           </div>
         </div>
       </div>
     </div>
     <div class="col-sm-8">
       <div class="tab-panel">
-        <tabset class="member-tabset">
-          <tab heading="Edit Profile">
-            <form #editForm="ngForm" id="editForm" (ngSubmit)="updateUser()">
-              <h4>Description</h4>
-              <textarea name="introduction" rows="6" class="form-control" [(ngModel)]="user.introduction"></textarea>
-              <h4>Looking For</h4>
-              <textarea name="lookingFor" rows="6" class="form-control" [(ngModel)]="user.lookingFor"></textarea>
-              <h4>Interests</h4>
-              <textarea name="interests" rows="6" class="form-control" [(ngModel)]="user.interests"></textarea>
-              <h4>Location Detils</h4>
-              <div class="form-inline">
-                <label for="city">City</label>
-                <input type="text" name="city" [(ngModel)]="user.city" class="form-control">
-                <label for="country">Country</label>
-                <input type="text" name="country" [(ngModel)]="user.country" class="form-control">
+        <form [formGroup]="editForm">
+          <tabset class="member-tabset">
+            <tab heading="General Info">
+              <h5>Username</h5>
+              <div class="mb-3">{{user.userName}}</div>
+
+              <h5>Known As</h5>
+              <div class="form-group">
+                <input [ngClass]="{'is-invalid': editForm.get('knownAs').errors && editForm.get('knownAs').touched}"
+                  class="form-control" placeholder="Known as" formControlName="knownAs">
+                <div class="invalid-feedback"
+                  *ngIf="editForm.get('knownAs').touched && editForm.get('knownAs').hasError('required')">Known as is
+                  required
+                </div>
               </div>
-            </form>
-          </tab>
-          <tab heading="Photos">
-            <app-photo-editor [photos]="user.photos"></app-photo-editor>
-          </tab>
-        </tabset>
+
+              <h5>Email Address - <span
+                  [ngClass]="{'text-success': user.emailConfirmed, 'text-error': !user.emailConfirmed}">
+                  {{user.emailConfirmed ? 'Confirmed' : 'UNCONFIRMED'}}</span></h5>
+              <div class="form-group">
+                <input [ngClass]="{'is-invalid': editForm.get('email').errors && editForm.get('email').touched}"
+                  class="form-control" placeholder="Email" formControlName="email">
+                <div class="invalid-feedback"
+                  *ngIf="editForm.get('email').touched && editForm.get('email').hasError('email')">
+                  Email is required
+                </div>
+                <div class="invalid-feedback"
+                  *ngIf="editForm.get('email').touched && editForm.get('email').hasError('emailExistsValidator')">
+                  Email exists - two accounts cannot use the same email
+                </div>
+              </div>
+
+              <h5 class="mt-2">Gender</h5>
+              <div class="form-group">
+                <label class="radio-inline">
+                  <input class="mr-2" type="radio" value="male" formControlName="gender">Male
+                </label>
+                <label class="radio-inline ml-3">
+                  <input class="mr-2" type="radio" value="female" formControlName="gender">Female
+                </label>
+              </div>
+
+              <h5>Date of Birth</h5>
+              <div class="form-group">
+                <input
+                  [ngClass]="{'is-invalid': editForm.get('dateOfBirth').errors && editForm.get('dateOfBirth').touched}"
+                  class="form-control" placeholder="Date of Birth" formControlName="dateOfBirth" type="text"
+                  bsDatepicker [bsConfig]="bsConfig">
+                <div class="invalid-feedback"
+                  *ngIf="editForm.get('dateOfBirth').touched && editForm.get('dateOfBirth').hasError('required')">Date
+                  of
+                  Birth is required</div>
+              </div>
+
+              <h5 class="mt-2">Location Details</h5>
+              <div class="form-inline">
+                <div class="form-group mr-2">
+                  <input [ngClass]="{'is-invalid': editForm.get('city').errors && editForm.get('city').touched}"
+                    class="form-control" placeholder="City" formControlName="city">
+                  <div class="invalid-feedback"
+                    *ngIf="editForm.get('city').touched && editForm.get('city').hasError('required')">City is
+                    required
+                  </div>
+                </div>
+                <div class="form-group">
+                  <input [ngClass]="{'is-invalid': editForm.get('country').errors && editForm.get('country').touched}"
+                    class="form-control" placeholder="Country" formControlName="country">
+                  <div class="invalid-feedback"
+                    *ngIf="editForm.get('country').touched && editForm.get('country').hasError('required')">Country is
+                    required
+                  </div>
+                </div>
+              </div>
+
+
+            </tab>
+            <tab heading="Edit Profile">
+              <h4>Description</h4>
+              <textarea name="introduction" rows="6" class="form-control" [ngClass]="{'is-invalid': editForm.get('introduction').errors 
+                  && editForm.get('introduction').touched}" formControlName="introduction"></textarea>
+
+              <h4 class="mt-2">Looking For</h4>
+              <textarea name="lookingFor" rows="6" class="form-control" [ngClass]="{'is-invalid': editForm.get('lookingFor').errors 
+              && editForm.get('lookingFor').touched}" formControlName="lookingFor"></textarea>
+
+              <h4 class="mt-2">Interests</h4>
+              <textarea name="interests" rows="6" class="form-control" [ngClass]="{'is-invalid': editForm.get('interests').errors 
+              && editForm.get('interests').touched}" formControlName="interests"></textarea>
+            </tab>
+            <tab heading="Photos">
+              <app-photo-editor [photos]="user.photos"></app-photo-editor>
+            </tab>
+          </tabset>
+        </form>
       </div>
     </div>
   </div>

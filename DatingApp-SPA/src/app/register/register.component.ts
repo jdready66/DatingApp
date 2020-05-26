@@ -3,13 +3,15 @@ import { AuthService } from '../_services/auth.service';
 import { AlertifyService } from '../_services/alertify.service';
 import {
   FormGroup,
-  FormControl,
   Validators,
   FormBuilder,
 } from '@angular/forms';
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker/public_api';
 import { User } from '../_models/user';
 import { Router } from '@angular/router';
+import { YesNoValidator } from '../_directives/yesNoValidator.directive';
+import { UsernameExistsValidator } from '../_directives/usernameExistsValidator.directive';
+import { EmailExistsValidator } from '../_directives/emailExistsValidator.directive';
 
 @Component({
   selector: 'app-register',
@@ -41,8 +43,9 @@ export class RegisterComponent implements OnInit {
     this.registerForm = this.fb.group(
       {
         gender: ['male'],
-        username: ['', Validators.required],
+        username: ['', Validators.required, UsernameExistsValidator(this.authService)],
         knownAs: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email], EmailExistsValidator(this.authService)],
         dateOfBirth: [null, Validators.required],
         city: ['', Validators.required],
         country: ['', Validators.required],
@@ -78,7 +81,8 @@ export class RegisterComponent implements OnInit {
         },
         () => {
           this.authService.login(this.user).subscribe(() => {
-            this.router.navigate(['/members']);
+            // this.router.navigate(['/members']);
+            this.router.navigate(['/confirmEmail/unconfirmed']);
           });
         }
       );

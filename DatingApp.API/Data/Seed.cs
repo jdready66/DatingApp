@@ -25,8 +25,12 @@ namespace DatingApp.API.Data
                     roleManager.CreateAsync(role).Wait();
                 }
 
+                var cnt = 0;
                 foreach (var user in users)
                 {
+                    cnt++;
+                    user.Email = "risedev+" + cnt.ToString() + "@gmail.com";
+                    user.EmailConfirmed = true;
                     user.Photos.FirstOrDefault().isApproved = true;
                     userManager.CreateAsync(user, "password").Wait();
                     userManager.AddToRoleAsync(user, "Member").Wait();
@@ -34,7 +38,9 @@ namespace DatingApp.API.Data
 
                 // create admin user
                 var adminUser = new User {
-                    UserName = "Admin"
+                    UserName = "Admin",
+                    Email = "jdready@comcast.net",
+                    EmailConfirmed = true
                 };
 
                 var result = userManager.CreateAsync(adminUser, "password").Result;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, ActivatedRouteSnapshot } from '@angular/router';
+import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../_services/auth.service';
 import { AlertifyService } from '../_services/alertify.service';
 
@@ -12,7 +12,8 @@ export class AuthGuard implements CanActivate {
     private router: Router,
     private alertify: AlertifyService
   ) {}
-  canActivate(next: ActivatedRouteSnapshot): boolean {
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    // tslint:disable-next-line: no-string-literal
     const roles = next.firstChild.data['roles'] as Array<string>;
     if (roles) {
       const match = this.authService.roleMatch(roles);
@@ -23,9 +24,13 @@ export class AuthGuard implements CanActivate {
         this.alertify.error('You are not authorized to access this area');
       }
     }
-    
+
     if (this.authService.loggedIn()) {
-      return true;
+      if (this.authService.currentUser.emailConfirmed || state.url === '/member/edit') {
+        return true;
+      }
+      this.router.navigate(['/confirmEmail/unconfirmed']);
+      return false;
     }
 
     this.alertify.error('You shall not pass!!!');

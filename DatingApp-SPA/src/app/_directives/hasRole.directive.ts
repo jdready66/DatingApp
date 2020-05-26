@@ -9,23 +9,23 @@ export class HasRoleDirective implements OnInit {
   isVisible = false;
 
   constructor(
-    private viewContianerRef: ViewContainerRef, 
+    private viewContainerRef: ViewContainerRef,
     private templateRef: TemplateRef<any>,
     private authService: AuthService) { }
 
   ngOnInit() {
     const userRoles = this.authService.decodedToken.role as Array<string>;
     if (!userRoles) {
-      this.viewContianerRef.clear();
+      this.viewContainerRef.clear();
     }
 
     if (this.authService.roleMatch(this.appHasRole)) {
       if (!this.isVisible) {
         this.isVisible = true;
-        this.viewContianerRef.createEmbeddedView(this.templateRef);
+        this.viewContainerRef.createEmbeddedView(this.templateRef);
       } else {
         this.isVisible = false;
-        this.viewContianerRef.clear();
+        this.viewContainerRef.clear();
       }
     }
   }
