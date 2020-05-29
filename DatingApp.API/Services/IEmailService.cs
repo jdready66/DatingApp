@@ -6,5 +6,7 @@ namespace DatingApp.API.Services
     public interface IEmailService
     {
          public void SendEmailConfirmationEmail(User user, string baseClientUrl, IUrlHelper url);
+
+         public void SendPasswordResetEmail(User user, string baseClientUrl, IUrlHelper url);
     }
 }

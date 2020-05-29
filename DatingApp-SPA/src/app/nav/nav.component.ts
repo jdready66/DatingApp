@@ -46,4 +46,22 @@ export class NavComponent implements OnInit {
     this.alertify.message('logged out');
     this.router.navigate(['/home']);
   }
+
+  confirmPasswordReset() {
+    this.alertify.prompt('Forgot Password?',
+    'Enter email address associated with your account:',
+    'Email Address',
+    (value) => {
+      this.alertify.message('You entered: ' + value);
+      this.authService.sendResetPasswordLink(value).subscribe(data => {
+        // navigate to password reset landing page
+        this.alertify.success('Password Reset EMail Sent');
+      }, error => {
+        this.alertify.error(error);
+      });
+    },
+    () => {
+
+    });
+  }
 }

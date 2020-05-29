@@ -6,6 +6,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { User } from '../_models/user';
 import { Router } from '@angular/router';
+import { PasswordReset } from '../_models/PasswordReset';
 
 @Injectable({
   providedIn: 'root'
@@ -75,13 +76,30 @@ export class AuthService {
     let params = new HttpParams();
     params = params.append('baseClientUrl', encodeURI(window.location.origin));
     return this.http.get(
-      this.baseUrl + 'resendConfirmation/' + this.currentUser.id, { params });
+      this.baseUrl + 'resendConfirmation/' + this.currentUser.id,
+      { params }
+    );
   }
 
   getUserByUsername(username: string) {
     return this.http.get<User>(this.baseUrl + 'getUserByUsername/' + username);
   }
   getUserByEmail(email: string) {
-    return this.http.get<User>(this.baseUrl + 'getUserByEmail/' + encodeURI(email));
+    return this.http.get<User>(
+      this.baseUrl + 'getUserByEmail/' + encodeURI(email)
+    );
+  }
+
+  sendResetPasswordLink(email: string) {
+    let params = new HttpParams();
+    params = params.append('baseClientUrl', encodeURI(window.location.origin));
+    return this.http.get(
+      this.baseUrl + 'sendPasswordResetLink/' + encodeURI(email),
+      { params }
+    );
+  }
+
+  resetPassword(passwordReset: PasswordReset) {
+    return this.http.post(this.baseUrl + 'resetPassword', passwordReset);
   }
 }

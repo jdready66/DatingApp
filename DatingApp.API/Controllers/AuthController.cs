@@ -149,15 +149,44 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpGet("GetUserByUsername/{username}")]
-        public async Task<IActionResult> GetUserByUsername(string username) {
+        public async Task<IActionResult> GetUserByUsername(string username)
+        {
             var user = await _userManager.FindByNameAsync(username);
             return Ok(user);
         }
 
         [HttpGet("GetUserByEmail/{email}")]
-        public async Task<IActionResult> GetUserByEmail(string email) {
+        public async Task<IActionResult> GetUserByEmail(string email)
+        {
             var user = await _userManager.FindByEmailAsync(email);
             return Ok(user);
+        }
+
+        [HttpGet("sendPasswordResetLink/{email}")]
+        public async Task<IActionResult> SendPasswordResetLink(string email, [FromQuery] string baseClientUrl)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+                return BadRequest("Email address not found.");
+
+            _emailService.SendPasswordResetEmail(user, baseClientUrl, Url);
+            return Ok();
+        }
+
+        [HttpPost("resetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto) {
+            var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+            if (user == null)
+                return BadRequest("User not found");
+
+            var resetPasswordResult = 
+                await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
+
+            if (resetPasswordResult.Succeeded)
+                return Ok();
+
+            return BadRequest(resetPasswordResult.Errors);
         }
     }
 }

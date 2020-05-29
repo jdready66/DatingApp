@@ -51,6 +51,7 @@ import { RolesModalComponent } from './admin/roles-modal/roles-modal.component';
 import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
 import { YesNoValidatorDirective } from './_directives/yesNoValidator.directive';
 import { UsernameExistsValidatorDirective } from './_directives/usernameExistsValidator.directive';
+import { PasswordResetComponent } from './password-reset/password-reset.component';
 
 
 export function tokenGetter() {
@@ -86,7 +87,8 @@ export class CustomHammerConfig extends HammerGestureConfig {
     RolesModalComponent,
     ConfirmEmailComponent,
     YesNoValidatorDirective,
-    UsernameExistsValidatorDirective
+    UsernameExistsValidatorDirective,
+    PasswordResetComponent
   ],
   imports: [
     BrowserModule,

@@ -14,10 +14,12 @@ import { ListsResolver } from './_resolvers/lists.resolver';
 import { MessagesResolver } from './_resolvers/messages.resolver';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
+import { PasswordResetComponent } from './password-reset/password-reset.component';
 
 export const appRoutes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'confirmEmail/:link', component: ConfirmEmailComponent },
+  { path: 'passwordReset/:email/:token', component: PasswordResetComponent },
   {
     path: '',
     runGuardsAndResolvers: 'always',

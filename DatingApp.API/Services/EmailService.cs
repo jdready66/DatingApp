@@ -41,5 +41,25 @@ namespace DatingApp.API.Services
             var rsp = await msg.SendMsg();
         }
 
+        public async void SendPasswordResetEmail(User user, string baseClientUrl, IUrlHelper url)
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var html = string.Format(@"
+            A Password Reset was requested for this email account: {0}.  If you did not make this request 
+            please make sure your account is secure.  If you did make this request, please click on the 
+            link below to be taken to the password reset page.  Please know this link will ONLY be active 
+            for a limited time.<br><br>
+            <a href=""{1}/passwordReset/{2}/{3}"">Click Here to Reset Your Password</a>
+            ", user.Email, baseClientUrl, WebUtility.UrlEncode(user.Email), WebUtility.UrlEncode(token));
+
+            var msg = _emailMsgBuilder
+                .AddFrom("JD", "jdready@comcast.net")
+                .AddTo(user.KnownAs, user.Email)
+                .AddSubject("Password Reset Request")
+                .AddTextPart(token)
+                .AddHtmlPart(html);
+            var rsp = await msg.SendMsg();
+        }
     }
 }
