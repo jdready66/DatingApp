@@ -55,7 +55,7 @@ import { PasswordResetComponent } from './password-reset/password-reset.componen
 
 
 export function tokenGetter() {
-  return localStorage.getItem('token');
+  return sessionStorage.getItem('token');
 }
 
 export class CustomHammerConfig extends HammerGestureConfig {

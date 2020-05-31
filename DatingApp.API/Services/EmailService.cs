@@ -50,7 +50,7 @@ namespace DatingApp.API.Services
             please make sure your account is secure.  If you did make this request, please click on the 
             link below to be taken to the password reset page.  Please know this link will ONLY be active 
             for a limited time.<br><br>
-            <a href=""{1}/passwordReset/{2}/{3}"">Click Here to Reset Your Password</a>
+            <a href=""{1}/passwordReset/token/{2}/{3}"">Click Here to Reset Your Password</a>
             ", user.Email, baseClientUrl, WebUtility.UrlEncode(user.Email), WebUtility.UrlEncode(token));
 
             var msg = _emailMsgBuilder

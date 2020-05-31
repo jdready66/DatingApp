@@ -12,26 +12,36 @@ export class NavComponent implements OnInit {
   model: any = {};
   photoUrl: string;
 
-  constructor(public authService: AuthService, private alertify: AlertifyService, private router: Router) { }
+  constructor(
+    public authService: AuthService,
+    private alertify: AlertifyService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    this.authService.currentPhotoUrl.subscribe(photoUrl => this.photoUrl = photoUrl);
+    this.authService.currentPhotoUrl.subscribe(
+      (photoUrl) => (this.photoUrl = photoUrl)
+    );
   }
 
   login() {
-    this.authService.login(this.model).subscribe(next => {
-      this.model.username = '';
-      this.model.password = '';
-      this.alertify.success('Logged in successfully');
-    }, error => {
-      this.alertify.error(error);
-    }, () => {
-      if (this.authService.currentUser.emailConfirmed) {
-        this.router.navigate(['/members']);
-      } else {
-        this.router.navigate(['/confirmEmail/unconfirmed']);
+    this.authService.login(this.model).subscribe(
+      (next) => {
+        this.model.username = '';
+        this.model.password = '';
+        this.alertify.success('Logged in successfully');
+      },
+      (error) => {
+        this.alertify.error(error);
+      },
+      () => {
+        if (this.authService.currentUser.emailConfirmed) {
+          this.router.navigate(['/members']);
+        } else {
+          this.router.navigate(['/confirmEmail/unconfirmed']);
+        }
       }
-    });
+    );
   }
 
   loggedIn() {
@@ -39,8 +49,8 @@ export class NavComponent implements OnInit {
   }
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     this.authService.decodedToken = null;
     this.authService.currentUser = null;
     this.alertify.message('logged out');
@@ -48,20 +58,14 @@ export class NavComponent implements OnInit {
   }
 
   confirmPasswordReset() {
-    this.alertify.prompt('Forgot Password?',
-    'Enter email address associated with your account:',
-    'Email Address',
-    (value) => {
-      this.alertify.message('You entered: ' + value);
-      this.authService.sendResetPasswordLink(value).subscribe(data => {
-        // navigate to password reset landing page
-        this.alertify.success('Password Reset EMail Sent');
-      }, error => {
-        this.alertify.error(error);
-      });
-    },
-    () => {
-
-    });
+    this.alertify.prompt(
+      'Forgot Password?',
+      'Enter email address associated with your account:',
+      'Email Address',
+      (value) => {
+        this.router.navigate(['/passwordReset/sendEmail', value]);
+      },
+      () => {}
+    );
   }
 }

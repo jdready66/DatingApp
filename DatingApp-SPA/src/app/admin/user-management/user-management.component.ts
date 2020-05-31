@@ -4,6 +4,7 @@ import { AdminService } from 'src/app/_services/admin.service';
 import { AlertifyService } from 'src/app/_services/alertify.service';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { RolesModalComponent } from '../roles-modal/roles-modal.component';
+import { AuthService } from 'src/app/_services/auth.service';
 
 @Component({
   selector: 'app-user-management',
@@ -17,7 +18,8 @@ export class UserManagementComponent implements OnInit {
   constructor(
     private adminService: AdminService,
     private alertify: AlertifyService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -69,22 +71,33 @@ export class UserManagementComponent implements OnInit {
       {name: 'VIP', value: 'VIP'}
     ];
 
-    for (let i = 0; i < availableRoles.length; i++) {
+    // for (let i = 0; i < availableRoles.length; i++) {
+    availableRoles.forEach((role) => {
       let isMatch = false;
-      for (let j = 0; j < user.roles.length; j++) {
-        if (availableRoles[i].value === user.roles[j]) {
+      user.roles.foreach((userRole) => {
+        if (role.value === userRole.value) {
           isMatch = true;
-          availableRoles[i].checked = true;
-          roles.push(availableRoles[i]);
-          break;
+          roles.push(role);
         }
-      }
+      });
       if (!isMatch) {
-        availableRoles[i].checked = false;
-        roles.push(availableRoles[i]);
+        role.checked = false;
+        roles.push(role);
       }
-    }
+    });
 
     return roles;
+  }
+
+  impersonate(user: User) {
+    this.authService.impersonateLogin(user.id).subscribe((data: any) => {
+
+      const win = window.open(window.location.origin + '/members');
+      win.sessionStorage.setItem('token', data.token);
+      win.sessionStorage.setItem('user', JSON.stringify(data.user));
+      this.alertify.message('Impersonating in New Window');
+    }, error => {
+      this.alertify.error(error);
+    });
   }
 }

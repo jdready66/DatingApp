@@ -38,7 +38,7 @@ export class PhotoEditorComponent implements OnInit {
         'users/' +
         this.authService.decodedToken.nameid +
         '/photos',
-      authToken: 'Bearer ' + localStorage.getItem('token'),
+      authToken: 'Bearer ' + sessionStorage.getItem('token'),
       isHTML5: true,
       allowedFileType: ['image'],
       removeAfterUpload: true,
@@ -77,7 +77,7 @@ export class PhotoEditorComponent implements OnInit {
         if (photo.isMain) {
           this.authService.changeMemberPhoto(photo.url);
           this.authService.currentUser.photoUrl = photo.url;
-          localStorage.setItem(
+          sessionStorage.setItem(
             'user',
             JSON.stringify(this.authService.currentUser)
           );
@@ -100,7 +100,7 @@ export class PhotoEditorComponent implements OnInit {
           photo.isMain = true;
           this.authService.changeMemberPhoto(photo.url);
           this.authService.currentUser.photoUrl = photo.url;
-          localStorage.setItem(
+          sessionStorage.setItem(
             'user',
             JSON.stringify(this.authService.currentUser)
           );

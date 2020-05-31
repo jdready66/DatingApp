@@ -19,7 +19,12 @@ import { PasswordResetComponent } from './password-reset/password-reset.componen
 export const appRoutes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'confirmEmail/:link', component: ConfirmEmailComponent },
-  { path: 'passwordReset/:email/:token', component: PasswordResetComponent },
+  { path: 'passwordReset',
+    children: [
+      {path: 'token/:email/:token', component: PasswordResetComponent },
+      {path: 'sendEmail/:email', component: PasswordResetComponent}
+    ]
+  },
   {
     path: '',
     runGuardsAndResolvers: 'always',

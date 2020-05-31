@@ -32,8 +32,8 @@ export class AuthService {
         if (user) {
           this.currentUser = user.user;
           // Only fully login if eamil has been confirmed
-          localStorage.setItem('token', user.token);
-          localStorage.setItem('user', JSON.stringify(user.user));
+          sessionStorage.setItem('token', user.token);
+          sessionStorage.setItem('user', JSON.stringify(user.user));
           this.decodedToken = this.jwtHelper.decodeToken(user.token);
           this.currentUser = user.user;
           this.changeMemberPhoto(this.currentUser.photoUrl);
@@ -50,7 +50,7 @@ export class AuthService {
   }
 
   loggedIn() {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     return !this.jwtHelper.isTokenExpired(token);
   }
 
@@ -101,5 +101,9 @@ export class AuthService {
 
   resetPassword(passwordReset: PasswordReset) {
     return this.http.post(this.baseUrl + 'resetPassword', passwordReset);
+  }
+
+  impersonateLogin(userId: number) {
+    return this.http.get(this.baseUrl + 'impersonateLogin/' + userId);
   }
 }

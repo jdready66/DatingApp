@@ -11,13 +11,14 @@ import { PasswordReset } from '../_models/PasswordReset';
   styleUrls: ['./password-reset.component.css']
 })
 export class PasswordResetComponent implements OnInit {
-  mode = 'form';
+  mode = '';
   email = '';
   token = '';
   resetPasswordForm: FormGroup;
   passwordReset: PasswordReset;
   errorList: any;
   errorText = '';
+  path = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -25,11 +26,27 @@ export class PasswordResetComponent implements OnInit {
     private authService: AuthService,
     private fb: FormBuilder,
     private alertify: AlertifyService
-  ) {}
+  ) {
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.route.url.subscribe(params => {
+      console.log('path: ' + params[0].path);
+      this.path = params[0].path;
+    });
+  }
 
   ngOnInit() {
     this.email = this.route.snapshot.params.email;
-    this.token = this.route.snapshot.params.token;
+    if (this.path === 'sendEmail') {
+      this.authService.sendResetPasswordLink(this.email).subscribe(data => {
+        this.mode = 'sent';
+      }, error => {
+        this.errorText = error;
+        this.mode = 'problem';
+      });
+    } else {
+      this.token = this.route.snapshot.params.token;
+      this.mode = 'form';
+    }
     this.initializeResetPasswordForm();
   }
 

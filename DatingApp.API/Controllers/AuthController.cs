@@ -87,6 +87,22 @@ namespace DatingApp.API.Controllers
             return Unauthorized();
         }
 
+        [Authorize(Roles = "Manager")]
+        [HttpGet("impersonateLogin/{id}")]
+        public async Task<IActionResult> ImpersonateLogin(int id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return BadRequest("User not found.");
+
+            var appUser = _mapper.Map<UserForListDto>(user);
+            return Ok(new
+            {
+                token = GenerateJwtToken(user).Result,
+                user = appUser
+            });
+        }
+
         private async Task<string> GenerateJwtToken(User user)
         {
             var claims = new List<Claim> {
@@ -175,12 +191,13 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpPost("resetPassword")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto) {
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
             var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
             if (user == null)
                 return BadRequest("User not found");
 
-            var resetPasswordResult = 
+            var resetPasswordResult =
                 await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
 
             if (resetPasswordResult.Succeeded)
